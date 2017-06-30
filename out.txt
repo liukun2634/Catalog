@@ -1,0 +1,15 @@
+Most popular three artiles are: 
+     1. "Candidate is jerk, alleges rival"--338647 reviews
+     2. "Bears love berries, alleges bear"--253801 reviews
+     3. "Bad things gone, say good people"--170098 reviews
+
+
+Most popular authors are : 
+     1. "Ursula La Multa"--507594 reviews
+     2. "Rudolf von Treppenwitz"--423457 reviews
+     3. "Anonymous Contributor"--170098 reviews
+     4. "Markoff Chaney"--84557 reviews
+
+
+This day had more than 1% requests lead to errors: 
+     2016-07-17--2.26% errors
