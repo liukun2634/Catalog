@@ -1,0 +1,22 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+
+<div class="main row">
+    <h1>{{item.name}}</h1>
+    <a class="belong_text" href='{{url_for('showItems', category_name=category.name)}}'> ({{category.name}})</a>
+    <div class="item_description">
+        <p>
+            {{item.description}}
+        </p>
+    </div>
+    {% if 'username' in session%}
+    <a href='{{url_for('editItem', category_name=category.name, item_name = item.name) }}'>
+        <button class="btn btn-success">Edit</button>
+    </a>
+    <a href='{{url_for('deleteItem', category_name=category.name, item_name = item.name) }}'>
+        <button class="btn btn-danger">Delete</button>
+    </a>
+    {% endif %}
+
+</div>
+
+{% endblock %}

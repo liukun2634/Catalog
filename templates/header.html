@@ -1,0 +1,50 @@
+<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{url_for('showCatalog')}}">Coding Libaries</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="{{url_for('showCatalog')}}">
+                        <span class="glyphicon glyphicon-home">Home </span></a>
+                </li>
+                <li>
+                    <a href="{{url_for('about')}}">
+                        <span class="glyphicon glyphicon-headphones">About </span></a>
+                </li>
+                <li>
+                    <a href="mailto:996529090@qq.com">
+                        <span class="glyphicon glyphicon-envelope">Contact</span></a>
+                </li>
+            </ul>
+            <div class="white_text navbar-form navbar-right ">
+                {% if 'username' not in session %}
+                <a href="{{url_for('showLogin')}}">
+                    <button class="btn btn-default">Sign In</button>
+                </a>
+                {% else %} Hi, {{session['email']}}&nbsp
+                <a href="{{url_for('gdisconnect')}} ">
+                    <button class="btn btn-default">Sign out</button>
+                </a>
+                {% endif %}
+            </div>
+
+
+        </div>
+        <!-- /.nav-collapse -->
+
+    </div>
+    <!-- /.container -->
+</div>
+
+<!-- jQuery (Bootstrap) -->
+<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<!-- Include all Js-->
+<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>

@@ -1,0 +1,32 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="main row">
+    <h1> Edit {{item.name}}</h1>
+    <div class="col-md-6 col-sm-8 col-xs-12">
+        <form class="edit_form form" action="{{url_for('editItem',category_name=item.category_name, item_name=item.name)}}" method="post">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input class="form-control" type="text" class="form-control" name="name" placeholder='{{item.name}}'>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input class="form-control" type="text" class="form-control" name="description" placeholder='{{item.description}}'>
+            </div>
+            <div class="form-group">
+                <label for="category_name">Category<tr></label>
+                <select class="form-control" name="new_category_name">
+                          <option value="{{item.category_name}}" selected="selected">{{item.category_name}}</option>
+                         {% for i in all_category %}
+                         {% if i.name!=category_name %}
+                             <option value="{{i.name}}">{{i.name}}</option>
+                         {% endif %}
+                         {% endfor %}
+                       </select>
+            </div>
+            <button type="submit" class="btn btn-success">Edit</button>
+        </form>
+        <div class="cancel">
+            <a href='{{url_for('showItems', category_name=item.category_name)}}'>Cancel</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

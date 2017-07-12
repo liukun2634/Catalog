@@ -1,0 +1,22 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="main row">
+    <div class="catalog col-md-4 col-sm-4 col-xs-12 ">
+        <h1>Categories</h1> {% for i in all_category %}
+        <div class="border_right">
+            <a class="category_text" href='{{url_for('showItems', category_name=i.name) }}'>{{i.name}}</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="line col-md-2 col-sm-2 col-xs-0 "></div>
+
+    <div class="items col-md-6 col-sm-6 col-xs-12 ">
+        <h2 class="items_title">{{category.name}} Libaries</h2> {% for i in items %}
+        <div class="items_text">
+            <a href='{{url_for('showItem', category_name=i.category_name, item_name=i.name) }}'>{{i.name}}</a>
+            <div class="belong_text"></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

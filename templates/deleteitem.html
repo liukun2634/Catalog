@@ -1,0 +1,15 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="main delete_main">
+    <h2> Are you sure you want to delete {{item.name}}? </h2>
+    <div class="delete_form">
+        <form action="{{ url_for('deleteItem',category_name=item.category_name, item_name=item.name)}}" method='post'>
+            <button class="btn btn-danger" type='submit'>Yes, delete it</button>
+        </form>
+    </div>
+    <div class="delete_link">
+        <a href='{{url_for('showItems', category_name=item.category_name)}}'>
+            <button class="btn btn-success">No, dont delete it.</button>
+        </a>
+    </div>
+</div>
+{% endblock %}

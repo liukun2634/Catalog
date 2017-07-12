@@ -1,0 +1,31 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="main row">
+    <h1> Add New Item</h1>
+    <div class="col-md-6 col-sm-8 col-xs-12">
+        <form class="form" action="{{url_for('newItem')}}" method="post">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input class="form-control" type="text" class="form-control" name="name">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input class="form-control" type="text" class="form-control" name="description">
+            </div>
+            <div class="form-group">
+                <label for="category_name">Category<tr></label>
+                <select class="form-control" name="category_name">
+                       {% for i in all_category%}
+                            <option value="{{i.name}}">{{i.name}}</option>
+                       {% endfor %}
+                       </select>
+            </div>
+            <button type="submit" class="btn btn-success">Create</button>
+        </form>
+        <div class="cancel">
+            <a href='{{url_for('showCatalog')}}'>Cancel</a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
