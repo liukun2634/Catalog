@@ -50,3 +50,9 @@ So I use my Ubuntu Desktop by using ipv6 proxy to test the login function. Howev
 4. All the python, html, css file have been neat formatted and valided.
 
 5. Bootstrap is used for different device command.
+
+#### Update in 7.23
+
+1. Add authorizate to different users to edit and delete its own items.
+
+2. Formatted py code by sublime pep8 plugin (atom auto-pep8 package cannot check the code length).
