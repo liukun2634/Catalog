@@ -109,6 +109,8 @@ def showItemJSON(category_name, item_name):
         return "404 not found %s" % item_name
 
 # Decorator for login
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -123,7 +125,7 @@ def login_required(f):
 @app.route('/catalog/new', methods=['GET', 'POST'])
 @login_required
 def newItem():
-  
+
     if request.method == 'POST':
         new_item = Item(name=request.form['name'],
                         description=request.form['description'],
@@ -175,10 +177,10 @@ def editItem(category_name, item_name):
            methods=['GET', 'POST'])
 @login_required
 def deleteItem(category_name, item_name):
-    # Only login can query    
+    # Only login can query
     delete_item = session.query(Item).filter_by(
-        name=item_name, category_name=category_name).one() 
-     # Check if user can delete item
+        name=item_name, category_name=category_name).one()
+    # Check if user can delete item
     if delete_item.user_id != login_session['user_id']:
         return render_template('forbiddelete.html')
 
