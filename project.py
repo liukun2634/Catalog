@@ -8,6 +8,8 @@
   run it by using python project.py or ./project.py
   The page would show on localhost:8000
 """
+
+from functools import wraps
 from flask import Flask, render_template
 from flask import jsonify, request, redirect, url_for, flash
 from sqlalchemy import create_engine
@@ -106,13 +108,22 @@ def showItemJSON(category_name, item_name):
     else:
         return "404 not found %s" % item_name
 
+# Decorator for login
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in login_session:
+            return redirect(url_for('showLogin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # New item (need Login)
 
 
 @app.route('/catalog/new', methods=['GET', 'POST'])
+@login_required
 def newItem():
-    if 'username' not in login_session:
-        return redirect(url_for('showLogin'))
+  
     if request.method == 'POST':
         new_item = Item(name=request.form['name'],
                         description=request.form['description'],
@@ -131,16 +142,15 @@ def newItem():
 
 @app.route('/catalog/<category_name>/<item_name>/edit',
            methods=['GET', 'POST'])
+@login_required
 def editItem(category_name, item_name):
-    if 'username' not in login_session:
-        return redirect(url_for('showItem',
-                                category_name=category_name,
-                                item_name=item_name))
+    # Only login can query
+    edit_item = session.query(Item).filter_by(
+        name=item_name, category_name=category_name).one()
     # Check if user can edit item
     if edit_item.user_id != login_session['user_id']:
         return render_template('forbidedit.html')
-    edit_item = session.query(Item).filter_by(
-        name=item_name, category_name=category_name).one()
+
     if request.method == 'POST':
         if request.form['name']:
             edit_item.name = request.form['name']
@@ -163,16 +173,15 @@ def editItem(category_name, item_name):
 
 @app.route('/catalog/<category_name>/<item_name>/delete',
            methods=['GET', 'POST'])
+@login_required
 def deleteItem(category_name, item_name):
-    if 'username' not in login_session:
-        return redirect(url_for('showItem',
-                                category_name=category_name,
-                                item_name=item_name))
+    # Only login can query    
+    delete_item = session.query(Item).filter_by(
+        name=item_name, category_name=category_name).one() 
      # Check if user can delete item
     if delete_item.user_id != login_session['user_id']:
         return render_template('forbiddelete.html')
-    delete_item = session.query(Item).filter_by(
-        name=item_name, category_name=category_name).one()        
+
     if request.method == 'POST':
         session.delete(delete_item)
         session.commit()
