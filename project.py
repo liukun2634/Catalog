@@ -132,8 +132,6 @@ def newItem():
 @app.route('/catalog/<category_name>/<item_name>/edit',
            methods=['GET', 'POST'])
 def editItem(category_name, item_name):
-    edit_item = session.query(Item).filter_by(
-        name=item_name, category_name=category_name).one()
     if 'username' not in login_session:
         return redirect(url_for('showItem',
                                 category_name=category_name,
@@ -141,6 +139,8 @@ def editItem(category_name, item_name):
     # Check if user can edit item
     if edit_item.user_id != login_session['user_id']:
         return render_template('forbidedit.html')
+    edit_item = session.query(Item).filter_by(
+        name=item_name, category_name=category_name).one()
     if request.method == 'POST':
         if request.form['name']:
             edit_item.name = request.form['name']
@@ -164,8 +164,6 @@ def editItem(category_name, item_name):
 @app.route('/catalog/<category_name>/<item_name>/delete',
            methods=['GET', 'POST'])
 def deleteItem(category_name, item_name):
-    delete_item = session.query(Item).filter_by(
-        name=item_name, category_name=category_name).one()
     if 'username' not in login_session:
         return redirect(url_for('showItem',
                                 category_name=category_name,
@@ -173,6 +171,8 @@ def deleteItem(category_name, item_name):
      # Check if user can delete item
     if delete_item.user_id != login_session['user_id']:
         return render_template('forbiddelete.html')
+    delete_item = session.query(Item).filter_by(
+        name=item_name, category_name=category_name).one()        
     if request.method == 'POST':
         session.delete(delete_item)
         session.commit()
