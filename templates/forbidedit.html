@@ -1,0 +1,10 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="main row">
+    <div>
+        <h3>You are not authorized to edit this Item. Please create your own Item in order to edit.</h3>
+        <div class="cancel">
+            <a href='{{url_for('showCatalog')}}'>Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

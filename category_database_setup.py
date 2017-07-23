@@ -9,6 +9,15 @@ Base = declarative_base()
 """This database is the template for all kinds of category and related items"""
 
 
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False)
+    email = Column(String(250), nullable=False)
+    picture = Column(String(250))
+
+
 class Category(Base):
     """Class Category stores id,name"""
     __tablename__ = 'category'
@@ -32,9 +41,11 @@ class Item(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(20), nullable=False)
-    description = Column(String(300))
+    description = Column(String(1000))
     category_name = Column(String(20), ForeignKey('category.name'))
     category = relationship(Category)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):

@@ -8,10 +8,11 @@
   run it by using python project.py or ./project.py
   The page would show on localhost:8000
 """
-from flask import Flask, render_template,  jsonify, request, redirect, url_for, flash
+from flask import Flask, render_template
+from flask import jsonify, request, redirect, url_for, flash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from category_database_setup import Base, Category, Item
+from category_database_setup import Base, Category, Item, User
 
 from flask import session as login_session
 import random
@@ -40,7 +41,8 @@ session = DBSession()
 def showCatalog():
     all_category = session.query(Category).all()
     latest_items = session.query(Item).order_by(Item.id.desc()).limit(5)
-    return render_template('index.html', all_category=all_category, latest_items=latest_items, session=login_session)
+    return render_template('index.html', all_category=all_category,
+                           latest_items=latest_items, session=login_session)
 
 # Index JSON page
 
@@ -60,7 +62,8 @@ def showItems(category_name):
         items = session.query(Item).filter_by(
             category_name=category.name).all()
         all_category = session.query(Category).all()
-        return render_template('category.html', category=category, items=items, all_category=all_category)
+        return render_template('category.html', category=category,
+                               items=items, all_category=all_category)
     else:
         return "404 not found %s" % category_name
 
@@ -85,7 +88,8 @@ def showItem(category_name, item_name):
     if category:
         item = session.query(Item).filter_by(
             category_name=category.name, name=item_name).one()
-        return render_template('item.html', category=category, item=item, session=login_session)
+        return render_template('item.html', category=category,
+                               item=item, session=login_session)
     else:
         return "404 not found %s" % item_name
 
@@ -108,11 +112,14 @@ def showItemJSON(category_name, item_name):
 @app.route('/catalog/new', methods=['GET', 'POST'])
 def newItem():
     if 'username' not in login_session:
-        return redirect(url_for('showCatalog'))
+        return redirect(url_for('showLogin'))
     if request.method == 'POST':
-        new_item = Item(name=request.form['name'], description=request.form[
-                        'description'], category_name=request.form['category_name'])
+        new_item = Item(name=request.form['name'],
+                        description=request.form['description'],
+                        category_name=request.form['category_name'],
+                        user_id=login_session['user_id'])
         session.add(new_item)
+        flash('New Item %s Successfully Created' % new_item.name)
         session.commit()
         return redirect(url_for('showCatalog'))
     else:
@@ -122,12 +129,18 @@ def newItem():
 # Edit item(need Login)
 
 
-@app.route('/catalog/<category_name>/<item_name>/edit', methods=['GET', 'POST'])
+@app.route('/catalog/<category_name>/<item_name>/edit',
+           methods=['GET', 'POST'])
 def editItem(category_name, item_name):
-    if 'username' not in login_session:
-        return redirect(url_for('showItem', category_name=category_name, item_name=item_name))
     edit_item = session.query(Item).filter_by(
         name=item_name, category_name=category_name).one()
+    if 'username' not in login_session:
+        return redirect(url_for('showItem',
+                                category_name=category_name,
+                                item_name=item_name))
+    # Check if user can edit item
+    if edit_item.user_id != login_session['user_id']:
+        return render_template('forbidedit.html')
     if request.method == 'POST':
         if request.form['name']:
             edit_item.name = request.form['name']
@@ -142,17 +155,24 @@ def editItem(category_name, item_name):
     else:
         # category is to show all the category
         all_category = session.query(Category).all()
-        return render_template('edititem.html', item=edit_item, all_category=all_category)
+        return render_template('edititem.html',
+                               item=edit_item, all_category=all_category)
 
 # Delete item(need Login)
 
 
-@app.route('/catalog/<category_name>/<item_name>/delete', methods=['GET', 'POST'])
+@app.route('/catalog/<category_name>/<item_name>/delete',
+           methods=['GET', 'POST'])
 def deleteItem(category_name, item_name):
-    if 'username' not in login_session:
-        return redirect(url_for('showItem', category_name=category_name, item_name=item_name))
     delete_item = session.query(Item).filter_by(
         name=item_name, category_name=category_name).one()
+    if 'username' not in login_session:
+        return redirect(url_for('showItem',
+                                category_name=category_name,
+                                item_name=item_name))
+     # Check if user can delete item
+    if delete_item.user_id != login_session['user_id']:
+        return render_template('forbiddelete.html')
     if request.method == 'POST':
         session.delete(delete_item)
         session.commit()
@@ -232,8 +252,9 @@ def gconnect():
     stored_gplus_id = login_session.get('gplus_id')
     # TODO: There are login in bug here when you login in twice without logout
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response =\
+            make_response(json.dumps(
+                'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -252,16 +273,48 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # see if user exists
+
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius:"\
+    " 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
+
+# User Helper Functions
+
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
 
 # disconnect- Revoke a current user's token and reset their login_session
 
@@ -278,7 +331,7 @@ def gdisconnect():
             'Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']  # NOQA
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
